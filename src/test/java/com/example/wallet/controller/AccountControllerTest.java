@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 import static com.example.wallet.model.RequestType.CREDIT;
@@ -49,7 +50,7 @@ public class AccountControllerTest {
     void createAccount_shouldReturnSuccessMessage() throws Exception {
         // Given
         CreateAccountRequest request = new CreateAccountRequest("John Doe");
-        Account newAccount = Account.builder().id(1L).owner("John Doe").build();
+        Account newAccount = new Account(1L, "John Doe", Instant.now());
         when(accountService.createAccount(ArgumentMatchers.any())).thenReturn(newAccount);
 
         // When & Then
@@ -65,7 +66,7 @@ public class AccountControllerTest {
     void getAccount_shouldReturnAccountIfFound() throws Exception {
         // Given
         Long accountId = 1L;
-        Account account = Account.builder().id(accountId).owner("John Doe").build();
+        Account account = new Account(accountId, "John Doe", Instant.now());
         when(accountService.getAccountById(accountId)).thenReturn(Optional.of(account));
 
         // When & Then

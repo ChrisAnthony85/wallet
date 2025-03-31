@@ -31,11 +31,10 @@ class AccountServiceTest {
     void createAccount_shouldSaveAndReturnAccount() {
         // Given
         String owner = "John Testowner";
-        Account mockAccount = Account.builder()
-                .id(1L)
-                .owner(owner)
-                .timestamp(Instant.now())
-                .build();
+        Account mockAccount = new Account();
+        mockAccount.setOwner(owner);
+        mockAccount.setId(1L);
+        mockAccount.setTimestamp(Instant.now());
 
         when(accountRepository.save(any(Account.class))).thenReturn(mockAccount);
 

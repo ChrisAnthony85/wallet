@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.wallet.model.RequestType.CREDIT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -61,30 +62,12 @@ class TransactionProcessorTest {
     void processTransaction_shouldProcessCreditTransaction() throws InterruptedException {
         // Given
         String transactionId = UUID.randomUUID().toString();
-        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", RequestType.CREDIT);
+        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", CREDIT);
 
-        Account mockAccount = Account.builder()
-                .id(1L)
-                .owner("John Doe")
-                .timestamp(Instant.now())
-                .build();
-
-        Balance mockBalance = Balance.builder()
-                .id(1L)
-                .amount(BigDecimal.ZERO)
-                .currency("USD")
-                .account(mockAccount)
-                .version(0L)
-                .build();
-
-        Transaction mockTransaction = Transaction.builder()
-                .amount(BigDecimal.valueOf(100))
-                .currency("USD")
-                .type(RequestType.CREDIT)
-                .account(mockAccount)
-                .transactionKey(transactionId)
-                .timestamp(Instant.now())
-                .build();
+        Account mockAccount = new Account(1L, "John Doe", Instant.now());
+        Balance mockBalance = new Balance(1L, BigDecimal.ZERO, "USD", mockAccount, 0L);
+        Transaction mockTransaction = new Transaction(null, BigDecimal.valueOf(100), "USD", CREDIT,
+                mockAccount, transactionId, Instant.now());
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount));
@@ -107,19 +90,8 @@ class TransactionProcessorTest {
         String transactionId = UUID.randomUUID().toString();
         TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(500), "USD", RequestType.DEBIT);
 
-        Account mockAccount = Account.builder()
-                .id(1L)
-                .owner("John Doe")
-                .timestamp(Instant.now())
-                .build();
-
-        Balance mockBalance = Balance.builder()
-                .id(1L)
-                .amount(BigDecimal.valueOf(100))
-                .currency("USD")
-                .account(mockAccount)
-                .version(0L)
-                .build();
+        Account mockAccount = new Account(1L, "John Doe", Instant.now());
+        Balance mockBalance = new Balance(1L, BigDecimal.ZERO, "USD", mockAccount, 0L);
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount));
@@ -137,7 +109,7 @@ class TransactionProcessorTest {
     void processTransaction_shouldIgnoreDuplicateTransaction() throws InterruptedException {
         // Given
         String transactionId = UUID.randomUUID().toString();
-        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", RequestType.CREDIT);
+        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", CREDIT);
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
         when(redissonClient.getBucket(transactionId).isExists()).thenReturn(true);  // Already processed
@@ -154,7 +126,7 @@ class TransactionProcessorTest {
     void processTransaction_shouldHandleLockFailure() throws InterruptedException {
         // Given
         String transactionId = UUID.randomUUID().toString();
-        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", RequestType.CREDIT);
+        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(100), "USD", CREDIT);
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(false);  // Lock not acquired
 

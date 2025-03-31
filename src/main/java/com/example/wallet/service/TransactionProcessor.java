@@ -55,10 +55,9 @@ public class TransactionProcessor {
                 Account account;
 
                 if (request.accountId() == null && request.owner() != null) {
-                    Account newAccount = Account.builder()
-                            .owner(request.owner())
-                            .timestamp(Instant.now())
-                            .build();
+                    Account newAccount = new Account();
+                    newAccount.setOwner(request.owner());
+                    newAccount.setTimestamp(Instant.now());
                     account = accountRepository.save(newAccount);
                 } else {
                     account = accountRepository.findById(request.accountId())
