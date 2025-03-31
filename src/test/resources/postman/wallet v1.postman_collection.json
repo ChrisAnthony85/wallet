@@ -45,7 +45,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8084/accounts/1/balance?currency=EUR",
+					"raw": "http://localhost:8084/accounts/1/balance",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -55,12 +55,6 @@
 						"accounts",
 						"1",
 						"balance"
-					],
-					"query": [
-						{
-							"key": "currency",
-							"value": "EUR"
-						}
 					]
 				}
 			},
@@ -73,7 +67,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"owner\": \"Chris number5\"\r\n}",
+					"raw": "{\r\n    \"owner\": \"Chris number1\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -102,7 +96,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342002\",\r\n  \"accountId\": null,\r\n  \"owner\": \"ImplicitName 001\",\r\n  \"amount\": 50.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
+					"raw": "{\r\n  \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317343010\",\r\n  \"accountId\": null,\r\n  \"owner\": \"ImplicitName 004\",\r\n  \"amount\": 200.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -131,7 +125,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342005\",\r\n  \"accountId\": 1,\r\n  \"amount\": 100.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
+					"raw": "{\r\n  \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342013\",\r\n  \"accountId\": 1,\r\n  \"amount\": 100.00,\r\n  \"currency\": \"EUR\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -160,7 +154,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342006\",\r\n  \"accountId\": 2,\r\n  \"amount\": 75.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"DEBIT\"\r\n}\r\n",
+					"raw": "{\r\n \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342009\",\r\n  \"accountId\": 1,\r\n  \"amount\": 20.00,\r\n  \"currency\": \"EUR\",\r\n  \"type\": \"DEBIT\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -177,6 +171,39 @@
 					"path": [
 						"accounts",
 						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Transactions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/1/transactions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"1",
+						"transactions"
 					]
 				}
 			},

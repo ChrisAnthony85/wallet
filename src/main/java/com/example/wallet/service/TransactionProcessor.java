@@ -1,6 +1,7 @@
 package com.example.wallet.service;
 
 import com.example.wallet.exception.InsufficientBalanceException;
+import com.example.wallet.exception.InvalidTransactionException;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.model.entity.Account;
 import com.example.wallet.model.entity.Balance;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+
+import static com.example.wallet.model.RequestType.CREDIT;
 
 @Service
 public class TransactionProcessor {
@@ -49,21 +52,26 @@ public class TransactionProcessor {
                 // ❌ Check if the transaction is already processed
                 if (Boolean.TRUE.equals(redissonClient.getBucket(transactionKey).isExists())) {
                     System.out.println("Duplicate transaction ignored: " + request.transactionId());
-                    return ;
+                    return;
                 }
 
                 Account account;
 
-                if (request.accountId() == null && request.owner() != null) {
-                    Account newAccount = new Account();
-                    newAccount.setOwner(request.owner());
-                    newAccount.setTimestamp(Instant.now());
-                    account = accountRepository.save(newAccount);
-                } else {
-                    account = accountRepository.findById(request.accountId())
-                            .orElseThrow(() -> new RuntimeException("Account does not exist. Create an account first."));
+                try {
+                    account = processAccount(request);
+                } catch (InvalidTransactionException ex) {
+                    // Log the error and mark the transaction as failed
+                    System.err.println("Account not found: " + ex.getMessage());
+
+                    // Mark the transaction as "FAIL" and "Account not found" in the database
+                    markTransactionAsFailed(request.transactionId(), ex.getMessage());
+
+                    // Mark the transaction as processed in Redis to prevent re-processing
+                    redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
+                    return; // Exit the method as the transaction is failed
                 }
 
+                // If account found, continue with the balance update and transaction processing
                 Balance balance = balanceRepository.findByAccountIdAndCurrency(account.getId(), request.currency())
                         .orElseGet(() -> balanceRepository.save(new Balance(null, BigDecimal.ZERO, request.currency(), account, 0L)));
 
@@ -78,7 +86,8 @@ public class TransactionProcessor {
                 }
 
                 Transaction transaction = new Transaction(null, request.amount(),
-                        request.currency(), request.type(), account, transactionKey, Instant.now());
+                        request.currency(), request.type(), account, transactionKey,
+                        Instant.now(), "SUCCESS", "Transfer Successful");
                 transactionRepository.save(transaction);
                 balanceRepository.save(balance);
 
@@ -95,6 +104,30 @@ public class TransactionProcessor {
             }
         }
     }
+
+    private Account processAccount(TransferRequest request) {
+        Account account;
+        if (request.accountId() == null && request.owner() != null) {
+            // Create a new account
+            Account newAccount = new Account();
+            newAccount.setOwner(request.owner());
+            newAccount.setTimestamp(Instant.now());
+            account = accountRepository.save(newAccount);
+        } else {
+            // Fetch the account by ID or throw an exception
+            account = accountRepository.findById(request.accountId())
+                    .orElseThrow(() -> new InvalidTransactionException("Account does not exist. Create an account first."));
+        }
+        return account;
+    }
+
+    private void markTransactionAsFailed(String transactionId, String remarks) {
+        // Create a failed transaction entry in the database
+        Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, "", CREDIT, null, transactionId,
+                Instant.now(), "FAIL", remarks);
+        transactionRepository.save(failedTransaction);
+    }
+
 
 }
 

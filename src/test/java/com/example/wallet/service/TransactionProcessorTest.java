@@ -67,7 +67,7 @@ class TransactionProcessorTest {
         Account mockAccount = new Account(1L, "John Doe", Instant.now());
         Balance mockBalance = new Balance(1L, BigDecimal.ZERO, "USD", mockAccount, 0L);
         Transaction mockTransaction = new Transaction(null, BigDecimal.valueOf(100), "USD", CREDIT,
-                mockAccount, transactionId, Instant.now());
+                mockAccount, transactionId, Instant.now(), "SUCCESS", "Transfer Successful");
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount));

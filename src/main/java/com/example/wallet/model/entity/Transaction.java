@@ -32,7 +32,16 @@ public class Transaction {
     @Column(nullable = false, updatable = false)
     private Instant timestamp;
 
-    public Transaction(Long id, BigDecimal amount, String currency, RequestType type, Account account, String transactionKey, Instant now) {
+    @Column(nullable = false)
+    private String status;
+
+    @Column
+    private String remarks;
+
+    public Transaction() {}
+
+    public Transaction(Long id, BigDecimal amount, String currency, RequestType type, Account account,
+                       String transactionKey, Instant now, String status, String remarks) {
         this.id = id;
         this.amount = amount;
         this.currency = currency;
@@ -40,6 +49,8 @@ public class Transaction {
         this.account = account;
         this.transactionKey = transactionKey;
         this.timestamp = now;
+        this.status = status;
+        this.remarks = remarks;
     }
 
 
@@ -97,5 +108,21 @@ public class Transaction {
 
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 }

@@ -130,7 +130,7 @@ public class AccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"transactionId\": \"txn123\", \"accountId\": 1, \"accountHolder\": \"John Doe\", \"amount\": 100.00, \"currency\": \"USD\"}"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Transfer request processed"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Transfer request submitted"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.transactionId").value("txn123"));
     }
 

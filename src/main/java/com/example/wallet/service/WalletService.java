@@ -6,6 +6,7 @@ import com.example.wallet.repository.BalanceRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class WalletService {
@@ -21,5 +22,9 @@ public class WalletService {
         return balanceRepository.findByAccountIdAndCurrency(accountId, currency)
                 .map(Balance::getAmount)
                 .orElseThrow(() -> new RuntimeException("Account or currency not found"));
+    }
+
+    public List<Balance> getBalances(Long accountId) {
+        return balanceRepository.findAllByAccountId(accountId);
     }
 }
