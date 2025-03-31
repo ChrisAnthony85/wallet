@@ -59,7 +59,7 @@ class AccountController {
 //    }
 
     @GetMapping("/{id}/balance")
-    public ResponseEntity<?> getBalances(@PathVariable Long id, @RequestParam String currency) {
+    public ResponseEntity<?> getBalances(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(walletService.getBalances(id));
         } catch (RuntimeException e) {

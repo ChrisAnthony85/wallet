@@ -2,6 +2,7 @@ package com.example.wallet.service;
 
 import com.example.wallet.exception.InsufficientBalanceException;
 import com.example.wallet.exception.InvalidTransactionException;
+import com.example.wallet.model.RequestType;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.model.entity.Account;
 import com.example.wallet.model.entity.Balance;
@@ -59,38 +60,37 @@ public class TransactionProcessor {
 
                 try {
                     account = processAccount(request);
-                } catch (InvalidTransactionException ex) {
+
+                    // If account found, continue with the balance update and transaction processing
+                    Balance balance = balanceRepository.findByAccountIdAndCurrency(account.getId(), request.currency())
+                            .orElseGet(() -> balanceRepository.save(new Balance(null, BigDecimal.ZERO, request.currency(), account, 0L)));
+
+                    switch (request.type()) {
+                        case DEBIT -> {
+                            if (balance.getAmount().compareTo(request.amount()) < 0) {
+                                throw new InsufficientBalanceException("Insufficient balance");
+                            }
+                            balance.setAmount(balance.getAmount().subtract(request.amount()));
+                        }
+                        case CREDIT -> balance.setAmount(balance.getAmount().add(request.amount()));
+                    }
+
+                    Transaction transaction = new Transaction(null, request.amount(),
+                            request.currency(), request.type(), account, transactionKey,
+                            Instant.now(), "SUCCESS", "Transfer Successful");
+                    transactionRepository.save(transaction);
+                    balanceRepository.save(balance);
+                } catch (RuntimeException ex) {
                     // Log the error and mark the transaction as failed
-                    System.err.println("Account not found: " + ex.getMessage());
+                    System.err.println("Invalid Transaction: " + ex.getMessage());
 
                     // Mark the transaction as "FAIL" and "Account not found" in the database
-                    markTransactionAsFailed(request.transactionId(), ex.getMessage());
+                    markTransactionAsFailed(request.transactionId(), ex.getMessage(), request.type());
 
                     // Mark the transaction as processed in Redis to prevent re-processing
                     redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
                     return; // Exit the method as the transaction is failed
                 }
-
-                // If account found, continue with the balance update and transaction processing
-                Balance balance = balanceRepository.findByAccountIdAndCurrency(account.getId(), request.currency())
-                        .orElseGet(() -> balanceRepository.save(new Balance(null, BigDecimal.ZERO, request.currency(), account, 0L)));
-
-                switch (request.type()) {
-                    case DEBIT -> {
-                        if (balance.getAmount().compareTo(request.amount()) < 0) {
-                            throw new InsufficientBalanceException("Insufficient balance");
-                        }
-                        balance.setAmount(balance.getAmount().subtract(request.amount()));
-                    }
-                    case CREDIT -> balance.setAmount(balance.getAmount().add(request.amount()));
-                }
-
-                Transaction transaction = new Transaction(null, request.amount(),
-                        request.currency(), request.type(), account, transactionKey,
-                        Instant.now(), "SUCCESS", "Transfer Successful");
-                transactionRepository.save(transaction);
-                balanceRepository.save(balance);
-
                 // ✅ Mark transaction as processed in Redis
                 redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
             } else {
@@ -121,9 +121,9 @@ public class TransactionProcessor {
         return account;
     }
 
-    private void markTransactionAsFailed(String transactionId, String remarks) {
+    private void markTransactionAsFailed(String transactionId, String remarks, RequestType type) {
         // Create a failed transaction entry in the database
-        Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, "", CREDIT, null, transactionId,
+        Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, "", type, null, transactionId,
                 Instant.now(), "FAIL", remarks);
         transactionRepository.save(failedTransaction);
     }
