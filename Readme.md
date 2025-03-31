@@ -7,8 +7,20 @@ Ensure you have the following installed on your system:
 - Maven
 
 ## Setup and Run
+- ``` sh
+  mvn clean install
+  ``` 
+  or 
+- ``` 
+  mvn clean package 
+  ```
+  will build 
+- above will also run the unit tests inside test folder unless -DskipTests is added
 
 ### 1. Start Redis and RabbitMQ using Docker Compose
+Redis and RabbitMQ dependencies are added to illustrate some of the requirements
+of concurrency, asynchronous rest apis besides the internal thread safety or locking.
+
 Run the following command in the project root where `docker-compose.yml` is located:
 ```sh
 docker compose up -d
@@ -29,7 +41,7 @@ The application will start on port `8084`.
 
 #### Example cURL Request
 ```sh
-curl -X GET "http://localhost:8084/accounts/1/balance?currency=USD" -H "Content-Type: application/json"
+curl -X GET "http://localhost:8084/accounts/1/balance" -H "Content-Type: application/json"
 ```
 
 ### Transfer Funds
