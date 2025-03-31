@@ -135,7 +135,7 @@ public class TransactionProcessor {
         // Create a failed transaction entry in the database
 
         Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, request.currency(),
-                request.type(), null, request.transactionId(),
+                request.type(), request.accountId(), request.transactionId(),
                 Instant.now(), "FAIL", remarks);
         transactionRepository.save(failedTransaction);
     }
