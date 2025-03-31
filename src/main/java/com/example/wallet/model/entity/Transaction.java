@@ -22,9 +22,8 @@ public class Transaction {
     @Column(nullable = false)
     private RequestType type;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @Column(name = "account_id")
+    private Long accountId;
 
     @Column(nullable = false, unique = true, updatable = false)
     private String transactionKey;
@@ -40,13 +39,13 @@ public class Transaction {
 
     public Transaction() {}
 
-    public Transaction(Long id, BigDecimal amount, String currency, RequestType type, Account account,
+    public Transaction(Long id, BigDecimal amount, String currency, RequestType type, Long accountId,
                        String transactionKey, Instant now, String status, String remarks) {
         this.id = id;
         this.amount = amount;
         this.currency = currency;
         this.type = type;
-        this.account = account;
+        this.accountId = accountId;
         this.transactionKey = transactionKey;
         this.timestamp = now;
         this.status = status;
@@ -86,14 +85,6 @@ public class Transaction {
         this.type = type;
     }
 
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
     public String getTransactionKey() {
         return transactionKey;
     }
@@ -124,5 +115,13 @@ public class Transaction {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }

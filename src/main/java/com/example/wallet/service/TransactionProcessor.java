@@ -76,20 +76,30 @@ public class TransactionProcessor {
                     }
 
                     Transaction transaction = new Transaction(null, request.amount(),
-                            request.currency(), request.type(), account, transactionKey,
+                            request.currency(), request.type(), request.accountId(), transactionKey,
                             Instant.now(), "SUCCESS", "Transfer Successful");
                     transactionRepository.save(transaction);
                     balanceRepository.save(balance);
-                } catch (RuntimeException ex) {
-                    // Log the error and mark the transaction as failed
-                    System.err.println("Invalid Transaction: " + ex.getMessage());
+                } catch (InsufficientBalanceException ex) {
+                    // Log the error and mark the transaction as failed for insufficient balance
+                    System.err.println("Insufficient Balance: " + ex.getMessage());
 
-                    // Mark the transaction as "FAIL" and "Account not found" in the database
-                    markTransactionAsFailed(request.transactionId(), ex.getMessage(), request.type());
+                    // Mark the transaction as "FAIL" with "Insufficient balance" in the database
+                    markTransactionAsFailed(request, "Insufficient balance");
 
                     // Mark the transaction as processed in Redis to prevent re-processing
                     redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
-                    return; // Exit the method as the transaction is failed
+                    return; // Exit the method as the transaction failed due to insufficient balance
+                } catch (RuntimeException ex) {
+                    // Log and handle any other errors
+                    System.err.println("Invalid Transaction: " + ex.getMessage());
+
+                    // Mark the transaction as "FAIL" and "Account not found" in the database
+                    markTransactionAsFailed(request, "Account not found or other error");
+
+                    // Mark the transaction as processed in Redis to prevent re-processing
+                    redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
+                    return; // Exit the method as the transaction failed
                 }
                 // ✅ Mark transaction as processed in Redis
                 redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
@@ -121,9 +131,11 @@ public class TransactionProcessor {
         return account;
     }
 
-    private void markTransactionAsFailed(String transactionId, String remarks, RequestType type) {
+    private void markTransactionAsFailed(TransferRequest request, String remarks) {
         // Create a failed transaction entry in the database
-        Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, "", type, null, transactionId,
+
+        Transaction failedTransaction = new Transaction(null, BigDecimal.ZERO, request.currency(),
+                request.type(), null, request.transactionId(),
                 Instant.now(), "FAIL", remarks);
         transactionRepository.save(failedTransaction);
     }

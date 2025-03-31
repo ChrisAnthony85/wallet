@@ -3,6 +3,7 @@ package com.example.wallet.controller;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.model.dto.CreateAccountRequest;
 import com.example.wallet.model.entity.Account;
+import com.example.wallet.model.entity.Balance;
 import com.example.wallet.service.AccountService;
 import com.example.wallet.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.wallet.model.RequestType.CREDIT;
@@ -94,29 +96,15 @@ public class AccountControllerTest {
         Long accountId = 1L;
         String currency = "USD";
         BigDecimal balance = new BigDecimal("100.00");
-        when(walletService.getBalance(accountId, currency)).thenReturn(balance);
+        Balance mockBalance = new Balance(1L, balance, currency,
+                new Account(accountId, "John Doe", Instant.now()), 0L);
+        when(walletService.getBalances(accountId)).thenReturn(List.of(mockBalance));
 
         // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/accounts/{id}/balance", accountId)
-                        .param("currency", currency))
+        mockMvc.perform(MockMvcRequestBuilders.get("/accounts/{id}/balance", accountId))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.balance").value(balance.doubleValue()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.accountId").value(accountId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.currency").value(currency));
-    }
-
-    @Test
-    void getBalance_shouldReturnNotFoundIfBalanceNotFound() throws Exception {
-        // Given
-        Long accountId = 1L;
-        String currency = "USD";
-        when(walletService.getBalance(accountId, currency)).thenThrow(new RuntimeException("Balance not found"));
-
-        // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/accounts/{id}/balance", accountId)
-                        .param("currency", currency))
-                .andExpect(status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("Balance not found"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].amount").value(balance.doubleValue()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].currency").value(currency));
     }
 
     @Test

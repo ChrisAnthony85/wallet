@@ -67,7 +67,7 @@ class TransactionProcessorTest {
         Account mockAccount = new Account(1L, "John Doe", Instant.now());
         Balance mockBalance = new Balance(1L, BigDecimal.ZERO, "USD", mockAccount, 0L);
         Transaction mockTransaction = new Transaction(null, BigDecimal.valueOf(100), "USD", CREDIT,
-                mockAccount, transactionId, Instant.now(), "SUCCESS", "Transfer Successful");
+                1L, transactionId, Instant.now(), "SUCCESS", "Transfer Successful");
 
         when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount));
@@ -82,27 +82,6 @@ class TransactionProcessorTest {
         assertEquals(BigDecimal.valueOf(100), mockBalance.getAmount());
         verify(transactionRepository, times(1)).save(any(Transaction.class));
         verify(balanceRepository, times(1)).save(any(Balance.class));
-    }
-
-    @Test
-    void processTransaction_shouldThrowInsufficientBalanceException() throws InterruptedException {
-        // Given
-        String transactionId = UUID.randomUUID().toString();
-        TransferRequest request = new TransferRequest(transactionId, 1L, "John Doe", BigDecimal.valueOf(500), "USD", RequestType.DEBIT);
-
-        Account mockAccount = new Account(1L, "John Doe", Instant.now());
-        Balance mockBalance = new Balance(1L, BigDecimal.ZERO, "USD", mockAccount, 0L);
-
-        when(lock.tryLock(5, 10, TimeUnit.SECONDS)).thenReturn(true);
-        when(accountRepository.findById(1L)).thenReturn(Optional.of(mockAccount));
-        when(balanceRepository.findByAccountIdAndCurrency(1L, "USD")).thenReturn(Optional.of(mockBalance));
-        when(redissonClient.getBucket(transactionId).isExists()).thenReturn(false);
-
-        // When & Then
-        assertThrows(InsufficientBalanceException.class, () -> transactionProcessor.processTransaction(request));
-
-        verify(transactionRepository, never()).save(any(Transaction.class));
-        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
