@@ -80,16 +80,6 @@ public class TransactionProcessor {
                             Instant.now(), "SUCCESS", "Transfer Successful");
                     transactionRepository.save(transaction);
                     balanceRepository.save(balance);
-                } catch (InsufficientBalanceException ex) {
-                    // Log the error and mark the transaction as failed for insufficient balance
-                    System.err.println("Insufficient Balance: " + ex.getMessage());
-
-                    // Mark the transaction as "FAIL" with "Insufficient balance" in the database
-                    markTransactionAsFailed(request, "Insufficient balance");
-
-                    // Mark the transaction as processed in Redis to prevent re-processing
-                    redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
-                    return; // Exit the method as the transaction failed due to insufficient balance
                 } catch (RuntimeException ex) {
                     // Log and handle any other errors
                     System.err.println("Invalid Transaction: " + ex.getMessage());
