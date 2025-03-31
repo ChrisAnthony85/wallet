@@ -34,7 +34,9 @@ mvn spring-boot:run
 ```
 The application will start on port `8084`.
 
-## API Endpoints
+## API Endpoints 
+- below are quick samples but it can be quicker to import the postman collection included in the
+test/resources/postman json file
 
 ### Get Account Balance
 **GET** `/accounts/{id}/balance`
