@@ -53,6 +53,25 @@ class WalletServiceTest {
     }
 
     @Test
+    void getBalance_ShouldThrowException_WhenAccountExists_BalanceWrongCurrency() {
+        // Given
+        BigDecimal expectedBalance = new BigDecimal("100.00");
+        Balance mockBalance = new Balance();
+        mockBalance.setAmount(expectedBalance);
+        String wrongCurrency = "EUR";
+
+        when(balanceRepository.findByAccountIdAndCurrency(accountId, wrongCurrency))
+                .thenReturn(Optional.empty());
+
+        // When & Then
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                walletService.getBalance(accountId, wrongCurrency)
+        );
+
+        assertEquals("Account or currency not found", exception.getMessage());
+    }
+
+    @Test
     void getBalance_ShouldThrowException_WhenAccountNotFound() {
         // Given
         when(balanceRepository.findByAccountIdAndCurrency(accountId, currency))

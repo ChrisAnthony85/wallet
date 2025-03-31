@@ -1,8 +1,7 @@
 package com.example.wallet.service;
 
 import com.example.wallet.exception.InsufficientBalanceException;
-import com.example.wallet.model.*;
-import com.example.wallet.model.dto.TransactionResponse;
+import com.example.wallet.model.TransferRequest;
 import com.example.wallet.model.entity.Account;
 import com.example.wallet.model.entity.Balance;
 import com.example.wallet.model.entity.Transaction;
@@ -16,7 +15,6 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;

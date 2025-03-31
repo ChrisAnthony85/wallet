@@ -19,4 +19,9 @@ public class GlobalExceptionHanlder {
     public ResponseEntity<Map<String,String>> handleAccountBalanceNotFound(AccountOrBalanceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("Error" , ex.getMessage()) );
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String,String>> handleInvalidAmount(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("Error" , ex.getMessage()) );
+    }
 }
