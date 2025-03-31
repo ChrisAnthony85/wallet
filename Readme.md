@@ -73,9 +73,17 @@ Password: (leave it empty unless you set one)
 
 Click Connect.
 
+#### Redis CLI
+- check Redis container: docker ps then
+- docker exec -it <redis_container_name> redis-cli
+- use keys * to list all keys
+- get <key>
+- exists <key>
+- and other commands
 
 ## Notes
 - If running the Spring Boot application locally (without Docker), ensure `spring.redis.host=localhost` is set in `application.properties`.
 - When using the app inside docker, set `spring.redis.host=redis` in `application.properties`.
 - RabbitMQ Management UI is available at [http://localhost:15672](http://localhost:15672) with default credentials (`guest`/`guest`).
+
 
