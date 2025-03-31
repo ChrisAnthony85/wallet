@@ -33,12 +33,18 @@ curl -X GET "http://localhost:8084/accounts/1/balance?currency=USD" -H "Content-
 ```
 
 ### Transfer Funds
-**POST** `/accounts/{id}/transfer`
+**POST** `/accounts/transfer`
+
+* implicit credit + create = omit "accountId" but provide "owner" name
+
+* plain credit = provide accountId and omit owner
 
 #### Request Body
 ```json
 {
+  "transactionId": "49f43fc6-84d8-4d8c-a05e-ced317342006",
   "accountId": 1,
+  "owner": null,
   "amount": 100.00,
   "currency": "USD",
   "type": "DEBIT"
@@ -47,10 +53,26 @@ curl -X GET "http://localhost:8084/accounts/1/balance?currency=USD" -H "Content-
 
 #### Example cURL Request
 ```sh
-curl -X POST "http://localhost:8084/accounts/1/transfer" \
+curl -X POST "http://localhost:8084/accounts/transfer" \
      -H "Content-Type: application/json" \
-     -d '{"accountId": 1, "amount": 100.00, "currency": "USD", "type": "DEBIT"}'
+     -d '{"transactionId": "UUID-example", "accountId": 1, "amount": 100.00, "currency": "USD", "type": "DEBIT"}'
 ```
+
+#### example postman collection is in src/test/resources/postman
+remember to change/increment transactionId to reflect new requests especially if Redis 
+already saved the values, otherwise it will be treated as already processed(a retry)
+
+#### Access the H2 Console
+Open http://localhost:8084/h2-console in a browser.
+
+JDBC URL: Enter jdbc:h2:mem:testdb
+(It must match your spring.datasource.url).
+
+Username: sa
+Password: (leave it empty unless you set one)
+
+Click Connect.
+
 
 ## Notes
 - If running the Spring Boot application locally (without Docker), ensure `spring.redis.host=localhost` is set in `application.properties`.

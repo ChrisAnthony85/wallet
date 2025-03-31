@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "d0dca716-3483-4dec-b2a7-cce53f8cb36b",
+		"name": "wallet v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2593676",
+		"_collection_link": "https://chris-ing.postman.co/workspace/BookKeeping-Exercise~c7ad5888-d8fe-4ebd-befe-184c1433c1c1/collection/2593676-d0dca716-3483-4dec-b2a7-cce53f8cb36b?action=share&source=collection_link&creator=2593676"
+	},
+	"item": [
+		{
+			"name": "get account",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8084/accounts/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "balance",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/1/balance?currency=EUR",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"1",
+						"balance"
+					],
+					"query": [
+						{
+							"key": "currency",
+							"value": "EUR"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"owner\": \"Chris number5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "credit + create acct",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342002\",\r\n  \"accountId\": null,\r\n  \"owner\": \"ImplicitName 001\",\r\n  \"amount\": 50.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "credit",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342005\",\r\n  \"accountId\": 1,\r\n  \"amount\": 100.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"CREDIT\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "debit",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"transactionId\": \"49f43fc6-84d8-4d8c-a05e-ced317342006\",\r\n  \"accountId\": 2,\r\n  \"amount\": 75.00,\r\n  \"currency\": \"USD\",\r\n  \"type\": \"DEBIT\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/accounts/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"accounts",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,6 +1,7 @@
-package com.example.wallet;
+package com.example.wallet.controller;
 
-import com.example.wallet.model.Account;
+import com.example.wallet.model.entity.Account;
+import com.example.wallet.model.dto.CreateAccountRequest;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.service.AccountService;
 import com.example.wallet.service.WalletService;
@@ -23,9 +24,17 @@ class AccountController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount() {
-        Account newAccount = accountService.createAccount();
+    public ResponseEntity<?> createAccount(@RequestBody CreateAccountRequest createAccountRequest) {
+        Account newAccount = accountService.createAccount(createAccountRequest.owner());
         return ResponseEntity.ok(Map.of("message", "Account created", "accountId", newAccount.getId()));
+    }
+
+    @GetMapping("/{accountId}")
+    public ResponseEntity<Object> getAccount(@PathVariable Long accountId) {
+        return accountService.getAccountById(accountId)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)  // Explicit type declaration
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Account with ID " + accountId + " not found")));
     }
 
     @GetMapping("/{id}/balance")
@@ -38,9 +47,11 @@ class AccountController {
         }
     }
 
-    @PostMapping("/{id}/transfer")
-    public ResponseEntity<?> transfer(@PathVariable Long id, @RequestBody TransferRequest request) {
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transfer(@RequestBody TransferRequest request) {
         walletService.requestTransfer(request);
-        return ResponseEntity.ok(Map.of("message", "Transfer request processed"));
+        return ResponseEntity.ok(Map.of("message", "Transfer request processed",
+                "transactionId", request.transactionId()));
     }
+
 }

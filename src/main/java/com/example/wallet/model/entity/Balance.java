@@ -1,5 +1,6 @@
-package com.example.wallet.model;
+package com.example.wallet.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,15 +12,20 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Transaction {
+public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private BigDecimal amount;
+
+    private BigDecimal amount = BigDecimal.ZERO;
+
     private String currency;
-    private String type;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @JsonBackReference
     private Account account;
+
+    @Version
+    private Long version;
 }

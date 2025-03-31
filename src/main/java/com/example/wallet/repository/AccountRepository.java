@@ -1,6 +1,6 @@
 package com.example.wallet.repository;
 
-import com.example.wallet.model.Account;
+import com.example.wallet.model.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

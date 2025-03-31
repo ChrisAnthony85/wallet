@@ -1,6 +1,6 @@
 package com.example.wallet.service;
 
-import com.example.wallet.model.Balance;
+import com.example.wallet.model.entity.Balance;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.repository.BalanceRepository;
 import org.springframework.stereotype.Service;
