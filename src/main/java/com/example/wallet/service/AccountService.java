@@ -16,9 +16,10 @@ public class AccountService {
     }
 
     public Account createAccount(String owner) {
-        Account newAccount = new Account();
-        newAccount.setOwner(owner);
-        newAccount.setTimestamp(Instant.now());
+        Account newAccount = Account.builder()
+                .owner(owner)
+                .timestamp(Instant.now())
+                .build();
         return accountRepository.save(newAccount);
     }
 

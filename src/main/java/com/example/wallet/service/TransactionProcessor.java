@@ -57,9 +57,10 @@ public class TransactionProcessor {
                 Account account;
 
                 if (request.accountId() == null && request.owner() != null) {
-                    Account newAccount = new Account();
-                    newAccount.setOwner(request.owner());
-                    newAccount.setTimestamp(Instant.now());
+                    Account newAccount = Account.builder()
+                            .owner(request.owner())
+                            .timestamp(Instant.now())
+                            .build();
                     account = accountRepository.save(newAccount);
                 } else {
                     account = accountRepository.findById(request.accountId())
@@ -79,7 +80,8 @@ public class TransactionProcessor {
                     case CREDIT -> balance.setAmount(balance.getAmount().add(request.amount()));
                 }
 
-                Transaction transaction = new Transaction(null, request.amount(), request.currency(), request.type(), account, transactionKey, Instant.now());
+                Transaction transaction = new Transaction(null, request.amount(),
+                        request.currency(), request.type(), account, transactionKey, Instant.now());
                 transactionRepository.save(transaction);
                 balanceRepository.save(balance);
 
