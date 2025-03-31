@@ -5,6 +5,7 @@ import com.example.wallet.model.dto.CreateAccountRequest;
 import com.example.wallet.model.TransferRequest;
 import com.example.wallet.service.AccountService;
 import com.example.wallet.service.WalletService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,13 @@ import java.util.Map;
 class AccountController {
     private final WalletService walletService;
     private final AccountService accountService;
+    private final RabbitTemplate rabbitTemplate;
 
-    public AccountController(WalletService walletService, AccountService accountService) {
+    public AccountController(WalletService walletService, AccountService accountService,
+                             RabbitTemplate rabbitTemplate) {
         this.walletService = walletService;
         this.accountService = accountService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @PostMapping("/create")
@@ -49,7 +53,7 @@ class AccountController {
 
     @PostMapping("/transfer")
     public ResponseEntity<?> transfer(@RequestBody TransferRequest request) {
-        walletService.requestTransfer(request);
+        rabbitTemplate.convertAndSend("transferExchange", "transfer", request);
         return ResponseEntity.ok(Map.of("message", "Transfer request processed",
                 "transactionId", request.transactionId()));
     }

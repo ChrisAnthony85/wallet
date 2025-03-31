@@ -40,7 +40,7 @@ public class TransactionProcessor {
     @RabbitListener(queues = "transactionQueue")
     @Transactional
     @Retryable(value = OptimisticLockingFailureException.class, maxAttempts = 3)
-    public TransactionResponse processTransaction(TransferRequest request) {
+    public void processTransaction(TransferRequest request) {
         String lockKey = "wallet_lock:" + request.currency();
         RLock lock = redissonClient.getLock(lockKey);
 
@@ -51,7 +51,7 @@ public class TransactionProcessor {
                 // ❌ Check if the transaction is already processed
                 if (Boolean.TRUE.equals(redissonClient.getBucket(transactionKey).isExists())) {
                     System.out.println("Duplicate transaction ignored: " + request.transactionId());
-                    return new TransactionResponse(null, request.currency(), null, "Duplicate Transaction"); // Return a response with no account ID
+                    return ;
                 }
 
                 Account account;
@@ -85,8 +85,6 @@ public class TransactionProcessor {
 
                 // ✅ Mark transaction as processed in Redis
                 redissonClient.getBucket(transactionKey).set("PROCESSED", 24, TimeUnit.HOURS);
-
-                return new TransactionResponse(account.getId(), request.currency(), balance.getAmount(), "Success");
             } else {
                 throw new RuntimeException("Could not acquire lock");
             }

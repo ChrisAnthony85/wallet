@@ -17,10 +17,6 @@ public class WalletService {
         this.balanceRepository = balanceRepository;
     }
 
-    public void requestTransfer(TransferRequest transferRequest) {
-        transactionProcessor.processTransaction(transferRequest);
-    }
-
     public BigDecimal getBalance(Long accountId, String currency) {
         return balanceRepository.findByAccountIdAndCurrency(accountId, currency)
                 .map(Balance::getAmount)
